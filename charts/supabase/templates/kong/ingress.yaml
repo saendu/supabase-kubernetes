@@ -18,9 +18,10 @@ metadata:
     {{- toYaml . | nindent 4 }}
   {{- end }}
 spec:
-  {{- if and .Values.kong.ingress.className (semverCompare ">=1.18-0" .Capabilities.KubeVersion.GitVersion) }}
-  ingressClassName: {{ .Values.kong.ingress.className }}
-  {{- end }}
+  # WORKAROUND TO MAKE kubernetes.io/ingress.class: traefik WORK IN values.examples.yaml
+  # {{- if and .Values.kong.ingress.className (semverCompare ">=1.18-0" .Capabilities.KubeVersion.GitVersion) }}
+  # ingressClassName: {{ .Values.kong.ingress.className }}
+  # {{- end }}
   {{- if .Values.kong.ingress.tls }}
   tls:
     {{- range .Values.kong.ingress.tls }}

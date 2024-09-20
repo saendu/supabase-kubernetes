@@ -1,20 +1,20 @@
 secret:
   jwt:
-    anonKey: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyAgCiAgICAicm9sZSI6ICJhbm9uIiwKICAgICJpc3MiOiAic3VwYWJhc2UtZGVtbyIsCiAgICAiaWF0IjogMTY0MTc2OTIwMCwKICAgICJleHAiOiAxNzk5NTM1NjAwCn0.dc_X5iR_VP_qT0zsiyj_I_OZ2T9FtRU2BBNWN8Bu4GE
-    serviceKey: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyAgCiAgICAicm9sZSI6ICJzZXJ2aWNlX3JvbGUiLAogICAgImlzcyI6ICJzdXBhYmFzZS1kZW1vIiwKICAgICJpYXQiOiAxNjQxNzY5MjAwLAogICAgImV4cCI6IDE3OTk1MzU2MDAKfQ.DaYlNEoUrrEn2Ig7tqibS-PHK5vgusbcbo7X36XVt4Q
-    secret: your-super-secret-jwt-token-with-at-least-32-characters-long
+    anonKey: ""
+    serviceKey: ""
+    secret: ""
   smtp:
-    username: your-mail@example.com
-    password: example123456
+    username: no-reply@sandrofelder.ch
+    password: ""
   dashboard:
-    username: supabase
-    password: this_password_is_insecure_and_should_be_updated
+    username: admin
+    password: ""
   db:
     username: postgres
-    password: example123456
+    password: ""
     database: postgres
   analytics:
-    apiKey: your-super-secret-and-long-logflare-key
+    apiKey: ""
 
 db:
   enabled: true
@@ -28,15 +28,16 @@ db:
         - postgres
     initialDelaySeconds: 3
   persistence:
-    enabled: false
+    enabled: true
+    storageClassName: "nfs-client"
 
 studio:
   image:
     tag: 20240326-5e5586d
   environment:
-    STUDIO_DEFAULT_ORGANIZATION: "My Organization"
-    STUDIO_DEFAULT_PROJECT: "My Project"
-    SUPABASE_PUBLIC_URL: http://example.com/
+    STUDIO_DEFAULT_ORGANIZATION: "SF Organisation"
+    STUDIO_DEFAULT_PROJECT: "MCL"
+    SUPABASE_PUBLIC_URL: https://backend.mycocktaillist.com
     NEXT_PUBLIC_ENABLE_LOGS: "true"
   livenessProbe:
     httpGet:
@@ -48,14 +49,14 @@ auth:
   image:
     tag: v2.143.0
   environment:
-    API_EXTERNAL_URL: http://example.com
-    GOTRUE_SITE_URL: http://example.com
+    API_EXTERNAL_URL: https://backend.mycocktaillist.com
+    GOTRUE_SITE_URL: https://backend.mycocktaillist.com
     GOTRUE_EXTERNAL_EMAIL_ENABLED: "true"
     GOTRUE_MAILER_AUTOCONFIRM: "true"
-    GOTRUE_SMTP_ADMIN_EMAIL: "your-mail@example.com"
-    GOTRUE_SMTP_HOST: "smtp.example.com"
+    GOTRUE_SMTP_ADMIN_EMAIL: "no-reply@sandrofelder.ch"
+    GOTRUE_SMTP_HOST: "smtp.resend.com"
     GOTRUE_SMTP_PORT: "587"
-    GOTRUE_SMTP_SENDER_NAME: "your-mail@example.com"
+    GOTRUE_SMTP_SENDER_NAME: "no-reply@sandrofelder.ch"
 
 rest:
   image:
@@ -83,9 +84,11 @@ storage:
       port: 5000
     initialDelaySeconds: 3
   persistence:
-    enabled: false
+    enabled: true
+    storageClassName: "nfs-client"
 
 imgproxy:
+  enabled: false
   image:
     tag: v3.8.0
   environment:
@@ -108,15 +111,15 @@ kong:
     KONG_LOG_LEVEL: info
   ingress:
     enabled: true
-    className: "nginx"
     annotations:
-      nginx.ingress.kubernetes.io/rewrite-target: /
-    tls: []
-      # - secretName: example-ingress-tls
-      #   hosts:
-      #     - example.com
+      kubernetes.io/ingress.class: traefik
+      cert-manager.io/cluster-issuer: letsencrypt-prod
+    tls:
+      - secretName: mcl-kong-tls
+        hosts:
+          - backend.mycocktaillist.com
     hosts:
-      - host: example.com
+      - host: backend.mycocktaillist.com
         paths:
           - path: /
             pathType: Prefix
